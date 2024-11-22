@@ -163,9 +163,10 @@ class cnUtil {
 		//RCT vars
 		this.H = H;
 		this.I = I;
-		this.identity = function () {
+		function identity() {
 			return I;
 		};
+		this.identity = identity;
 		this.Z = Z;
 		this.H2 = H2;
 
@@ -293,13 +294,14 @@ class cnUtil {
 			return swapEndianC((padding + a.toString(4)).slice(-32));
 		}
 		//end rct new functions
-		this.valid_hex = function (hex) {
+		function valid_hex(hex) {
 			var exp = new RegExp("[0-9a-fA-F]{" + hex.length + "}");
 			return exp.test(hex);
 		};
+		this.valid_hex = valid_hex;
 
 		//simple exclusive or function for two hex inputs
-		this.hex_xor = function (hex1, hex2) {
+		function hex_xor(hex1, hex2) {
 			if (!hex1 ||
 				!hex2 ||
 				hex1.length !== hex2.length ||
@@ -315,6 +317,7 @@ class cnUtil {
 			}
 			return bintohex(xor);
 		};
+		this.hex_xor = hex_xor;
 
 		function hextobin(hex) {
 			if (hex.length % 2 !== 0) throw "Hex string has invalid length!";
@@ -335,21 +338,24 @@ class cnUtil {
 		}
 
 		// Generate a 256-bit / 64-char / 32-byte crypto random
-		this.rand_32 = function () {
+		function rand_32() {
 			return mnemonic.mn_random(256);
 		};
+		this.rand_32 = rand_32;
 
 		// Generate a 128-bit / 32-char / 16-byte crypto random
-		this.rand_16 = function () {
+		function rand_16() {
 			return mnemonic.mn_random(128);
 		};
+		this.rand_16 = rand_16;
 
 		// Generate a 64-bit / 16-char / 8-byte crypto random
-		this.rand_8 = function () {
+		function rand_8() {
 			return mnemonic.mn_random(64);
 		};
+		this.rand_8 = rand_8;
 
-		this.encode_varint = function (i) {
+		function encode_varint(i) {
 			i = new JSBigInt(i);
 			var out = "";
 			// While i >= b10000000
@@ -361,8 +367,9 @@ class cnUtil {
 			out += ("0" + i.toJSValue().toString(16)).slice(-2);
 			return out;
 		};
+		this.encode_varint = encode_varint;
 
-		this.sc_reduce = function (hex) {
+		function sc_reduce(hex) {
 			var input = hextobin(hex);
 			if (input.length !== 64) {
 				throw "Invalid input length";
@@ -374,8 +381,9 @@ class cnUtil {
 			CNCrypto._free(mem);
 			return bintohex(output);
 		};
+		this.sc_reduce = sc_reduce;
 
-		this.sc_reduce32 = function (hex) {
+		function sc_reduce32(hex) {
 			var input = hextobin(hex);
 			if (input.length !== 32) {
 				throw "Invalid input length";
@@ -387,8 +395,9 @@ class cnUtil {
 			CNCrypto._free(mem);
 			return bintohex(output);
 		};
+		this.sc_reduce32 = sc_reduce32;
 
-		this.cn_fast_hash = function (input, inlen) {
+		function cn_fast_hash(input, inlen) {
 			/*if (inlen === undefined || !inlen) {
 					inlen = Math.floor(input.length / 2);
 			}*/
@@ -400,6 +409,7 @@ class cnUtil {
 			//return state.substr(0, HASH_SIZE * 2);
 			return sha3.keccak_256(hextobin(input));
 		};
+		this.cn_fast_hash = cn_fast_hash;
 
 		//many functions below are commented out now, and duplicated with the faster nacl impl --luigi1111
 		// to be removed completely later
@@ -420,17 +430,18 @@ class cnUtil {
 				CNCrypto._free(out_mem);
 				return bintohex(output);
 		};*/
-		this.sec_key_to_pub = function (sec) {
+		function sec_key_to_pub(sec) {
 			if (sec.length !== 64) {
 				throw "Invalid sec length";
 			}
 			return bintohex(nacl.ll.ge_scalarmult_base(hextobin(sec)));
 		};
-
+		this.sec_key_to_pub = sec_key_to_pub;
 		//alias
-		this.ge_scalarmult_base = function (sec) {
+		function ge_scalarmult_base(sec) {
 			return this.sec_key_to_pub(sec);
 		};
+		this.ge_scalarmult_base = ge_scalarmult_base;
 
 		//accepts arbitrary point, rather than G
 		/*this.ge_scalarmult = function(pub, sec) {
@@ -459,14 +470,15 @@ class cnUtil {
 				CNCrypto._free(derivation_m);
 				return bintohex(res);
 		};*/
-		this.ge_scalarmult = function (pub, sec) {
+		function ge_scalarmult(pub, sec) {
 			if (pub.length !== 64 || sec.length !== 64) {
 				throw "Invalid input length";
 			}
 			return bintohex(nacl.ll.ge_scalarmult(hextobin(pub), hextobin(sec)));
 		};
+		this.ge_scalarmult = ge_scalarmult;
 
-		this.pubkeys_to_string = function (spend, view, nettype) {
+		function pubkeys_to_string(spend, view, nettype) {
 			var prefix = this.encode_varint(
 				nettype_utils.cryptonoteBase58PrefixForStandardAddressOn(nettype)
 			);
@@ -476,8 +488,9 @@ class cnUtil {
 				data + checksum.slice(0, ADDRESS_CHECKSUM_SIZE * 2)
 			);
 		};
+		this.pubkeys_to_string = pubkeys_to_string;
 
-		this.new__int_addr_from_addr_and_short_pid = function (
+		function new__int_addr_from_addr_and_short_pid(
 			address,
 			short_pid,
 			nettype
@@ -499,9 +512,10 @@ class cnUtil {
 			//
 			return cnBase58.encode(encodable__data);
 		};
+		this.new__int_addr_from_addr_and_short_pid = new__int_addr_from_addr_and_short_pid;
 
 		// Generate keypair from seed
-		this.generate_keys = function (seed) {
+		function generate_keys(seed) {
 			if (seed.length !== 64) throw "Invalid input length!";
 			var sec = this.sc_reduce32(seed);
 			var pub = this.sec_key_to_pub(sec);
@@ -511,9 +525,10 @@ class cnUtil {
 			};
 		};
 
-		this.random_keypair = function () {
+		function random_keypair() {
 			return this.generate_keys(this.rand_32());
 		};
+		this.random_keypair = random_keypair;
 
 		// Random 32-byte ec scalar
 		function random_scalar() {
@@ -543,7 +558,7 @@ class cnUtil {
 				CNCrypto._free(out_mem);
 				return bintohex(output);
 		};*/
-		this.create_address = function (seed, nettype) {
+		function create_address(seed, nettype) {
 			var keys = {};
 			// updated by Luigi and PS to support reduced and non-reduced seeds
 			var first;
@@ -562,8 +577,9 @@ class cnUtil {
 			);
 			return keys;
 		};
+		this.create_address = create_address;
 
-		this.create_addr_prefix = function (seed, nettype) {
+		function create_addr_prefix(seed, nettype) {
 			var first;
 			if (seed.length !== 64) {
 				first = this.cn_fast_hash(seed);
@@ -576,8 +592,9 @@ class cnUtil {
 			);
 			return cnBase58.encode(prefix + spend.pub).slice(0, 44);
 		};
+		this.create_addr_prefix = create_addr_prefix;
 
-		this.decode_address = function (address, nettype) {
+		function decode_address(address, nettype) {
 			var dec = cnBase58.decode(address);
 			var expectedPrefix = this.encode_varint(
 				nettype_utils.cryptonoteBase58PrefixForStandardAddressOn(nettype)
@@ -628,8 +645,9 @@ class cnUtil {
 				};
 			}
 		};
+		this.decode_address = decode_address;
 
-		this.is_subaddress = function (addr, nettype) {
+		function is_subaddress(addr, nettype) {
 			var decoded = cnBase58.decode(addr);
 			var subaddressPrefix = this.encode_varint(
 				nettype_utils.cryptonoteBase58PrefixForSubAddressOn(nettype)
@@ -637,20 +655,23 @@ class cnUtil {
 			var prefix = decoded.slice(0, subaddressPrefix.length);
 			return prefix === subaddressPrefix;
 		};
+		this.is_subaddress = is_subaddress;
 
-		this.valid_keys = function (view_pub, view_sec, spend_pub, spend_sec) {
+		function valid_keys(view_pub, view_sec, spend_pub, spend_sec) {
 			var expected_view_pub = this.sec_key_to_pub(view_sec);
 			var expected_spend_pub = this.sec_key_to_pub(spend_sec);
 			return (
 				expected_spend_pub === spend_pub && expected_view_pub === view_pub
 			);
 		};
+		this.valid_keys = valid_keys;
 
-		this.hash_to_scalar = function (buf) {
+		function hash_to_scalar(buf) {
 			var hash = this.cn_fast_hash(buf);
 			var scalar = this.sc_reduce32(hash);
 			return scalar;
 		};
+		this.hash_to_scalar = hash_to_scalar;
 
 		/*this.generate_key_derivation = function(pub, sec) {
 				if (pub.length !== 64 || sec.length !== 64) {
@@ -682,15 +703,16 @@ class cnUtil {
 				CNCrypto._free(derivation_m);
 				return bintohex(res);
 		};*/
-		this.generate_key_derivation = function (pub, sec) {
+		function generate_key_derivation(pub, sec) {
 			if (pub.length !== 64 || sec.length !== 64) {
 				throw "Invalid input length";
 			}
 			var P = this.ge_scalarmult(pub, sec);
 			return this.ge_scalarmult(P, d2s(8)); //mul8 to ensure group
 		};
+		this.generate_key_derivation = generate_key_derivation;
 
-		this.derivation_to_scalar = function (derivation, output_index) {
+		function derivation_to_scalar(derivation, output_index) {
 			var buf = "";
 			if (derivation.length !== STRUCT_SIZES.EC_POINT * 2) {
 				throw "Invalid derivation length!";
@@ -703,8 +725,9 @@ class cnUtil {
 			buf += enc;
 			return this.hash_to_scalar(buf);
 		};
+		this.derivation_to_scalar = derivation_to_scalar;
 
-		this.derive_secret_key = function (derivation, out_index, sec) {
+		function derive_secret_key(derivation, out_index, sec) {
 			if (derivation.length !== 64 || sec.length !== 64) {
 				throw "Invalid input length!";
 			}
@@ -731,6 +754,7 @@ class cnUtil {
 			CNCrypto._free(derived_m);
 			return bintohex(res);
 		};
+		this.derive_secret_key = derive_secret_key;
 
 		/*this.derive_public_key = function(derivation, out_index, pub) {
 				if (derivation.length !== 64 || pub.length !== 64) {
@@ -771,7 +795,7 @@ class cnUtil {
 				CNCrypto._free(derived_key_m);
 				return bintohex(res);
 		};*/
-		this.derive_public_key = function (derivation, out_index, pub) {
+		function derive_public_key(derivation, out_index, pub) {
 			if (derivation.length !== 64 || pub.length !== 64) {
 				throw "Invalid input length!";
 			}
@@ -780,9 +804,10 @@ class cnUtil {
 				nacl.ll.ge_add(hextobin(pub), hextobin(this.ge_scalarmult_base(s)))
 			);
 		};
+		this.derive_public_key = derive_public_key;
 
 		// D' = P - Hs(aR|i)G
-		this.derive_subaddress_public_key = function (
+		function derive_subaddress_public_key(
 			output_key,
 			derivation,
 			out_index
@@ -794,8 +819,9 @@ class cnUtil {
 			var point = this.ge_scalarmult_base(scalar);
 			return this.ge_sub(output_key, point);
 		};
+		this.derive_subaddress_public_key = derive_subaddress_public_key;
 
-		this.hash_to_ec = function (key) {
+		function hash_to_ec(key) {
 			if (key.length !== KEY_SIZE * 2) {
 				throw "Invalid input length";
 			}
@@ -830,7 +856,7 @@ class cnUtil {
 			CNCrypto._free(res_m);
 			return bintohex(res);
 		};
-
+		this.hash_to_ec = hash_to_ec;
 		//returns a 32 byte point via "ge_p3_tobytes" rather than a 160 byte "p3", otherwise same as above;
 		function hash_to_ec_2(key) {
 			if (key.length !== KEY_SIZE * 2) {
@@ -878,7 +904,7 @@ class cnUtil {
 		this.hash_to_ec_2 = hash_to_ec_2;
 		this.hashToPoint = hash_to_ec_2;
 
-		this.generate_key_image_2 = function (pub, sec) {
+		function generate_key_image_2(pub, sec) {
 			if (!pub || !sec || pub.length !== 64 || sec.length !== 64) {
 				throw "Invalid input length";
 			}
@@ -917,8 +943,9 @@ class cnUtil {
 			CNCrypto._free(image_m);
 			return bintohex(res);
 		};
+		this.generate_key_image = generate_key_image_2;
 
-		this.generate_key_image = function (
+		function generate_key_image(
 			tx_pub,
 			view_sec,
 			spend_pub,
@@ -954,8 +981,9 @@ class cnUtil {
 				key_image: k_image,
 			};
 		};
+		this.generate_key_image = generate_key_image;
 
-		this.generate_key_image_helper_rct = function (
+		function generate_key_image_helper_rct(
 			keys,
 			tx_pub_key,
 			out_index,
@@ -995,10 +1023,11 @@ class cnUtil {
 				image: image,
 			};
 		};
+		this.generate_key_image_helper_rct = generate_key_image_helper_rct;
 
 		//curve and scalar functions; split out to make their host functions cleaner and more readable
 		//inverts X coordinate -- this seems correct ^_^ -luigi1111
-		this.ge_neg = function (point) {
+		function ge_neg(point) {
 			if (point.length !== 64) {
 				throw "expected 64 char hex string";
 			}
@@ -1008,6 +1037,7 @@ class cnUtil {
 				point.slice(63, 64)
 			);
 		};
+		this.ge_neg = ge_neg;
 
 		//adds two points together, order does not matter
 		/*this.ge_add2 = function(point1, point2) {
@@ -1042,18 +1072,20 @@ class cnUtil {
 				CNCrypto._free(p3_m);
 				return bintohex(res);
 		};*/
-		this.ge_add = function (p1, p2) {
+		function ge_add(p1, p2) {
 			if (p1.length !== 64 || p2.length !== 64) {
 				throw "Invalid input length!";
 			}
 			return bintohex(nacl.ll.ge_add(hextobin(p1), hextobin(p2)));
 		};
+		this.ge_add = ge_add;
 
 		//order matters
-		this.ge_sub = function (point1, point2) {
+		function ge_sub(point1, point2) {
 			point2n = ge_neg(point2);
 			return ge_add(point1, point2n);
 		};
+		this.ge_sub = ge_sub;
 
 		//adds two scalars together
 		this.sc_add = function (scalar1, scalar2) {
@@ -1080,9 +1112,10 @@ class cnUtil {
 			CNCrypto._free(derived_m);
 			return bintohex(res);
 		};
+		this.sc_add = sc_add;
 
 		//subtracts one scalar from another
-		this.sc_sub = function (scalar1, scalar2) {
+		function sc_sub(scalar1, scalar2) {
 			if (scalar1.length !== 64 || scalar2.length !== 64) {
 				throw "Invalid input length!";
 			}
@@ -1106,6 +1139,7 @@ class cnUtil {
 			CNCrypto._free(derived_m);
 			return bintohex(res);
 		};
+		this.sc_sub = sc_sub;
 
 		//fun mul function
 		this.sc_mul = function (scalar1, scalar2) {
@@ -1119,9 +1153,10 @@ class cnUtil {
 					.toString()
 			);
 		};
+		this.sc_mul = sc_mul;
 
 		//res = c - (ab) mod l; argument names copied from the signature implementation
-		this.sc_mulsub = function (sigc, sec, k) {
+		function sc_mulsub(sigc, sec, k) {
 			if (k.length !== KEY_SIZE * 2 ||
 				sigc.length !== KEY_SIZE * 2 ||
 				sec.length !== KEY_SIZE * 2 ||
@@ -1151,6 +1186,7 @@ class cnUtil {
 			CNCrypto._free(res_m);
 			return bintohex(res);
 		};
+		this.sc_mulsub = sc_mulsub;
 
 		//res = aB + cG; argument names copied from the signature implementation
 		/*this.ge_double_scalarmult_base_vartime = function(sigc, pub, sigr) {
@@ -1180,7 +1216,7 @@ class cnUtil {
 				CNCrypto._free(res_m);
 				return bintohex(res);
 		};*/
-		this.ge_double_scalarmult_base_vartime = function (c, P, r) {
+		function ge_double_scalarmult_base_vartime(c, P, r) {
 			if (c.length !== 64 || P.length !== 64 || r.length !== 64) {
 				throw "Invalid input length!";
 			}
@@ -1192,6 +1228,7 @@ class cnUtil {
 				)
 			);
 		};
+		this.ge_double_scalarmult_base_vartime = ge_double_scalarmult_base_vartime;
 
 		//res = a * Hp(B) + c*D
 		//res = sigr * Hp(pub) + sigc * k_image; argument names also copied from the signature implementation; note precomp AND hash_to_ec are done internally!!
@@ -1226,7 +1263,7 @@ class cnUtil {
 				CNCrypto._free(res_m);
 				return bintohex(res);
 		};*/
-		this.ge_double_scalarmult_postcomp_vartime = function (r, P, c, I) {
+		function ge_double_scalarmult_postcomp_vartime(r, P, c, I) {
 			if (c.length !== 64 ||
 				P.length !== 64 ||
 				r.length !== 64 ||
@@ -1243,6 +1280,7 @@ class cnUtil {
 				)
 			);
 		};
+		this.ge_double_scalarmult_postcomp_vartime = ge_double_scalarmult_postcomp_vartime;
 
 		//begin RCT functions
 		//xv: vector of secret keys, 1 per ring (nrings)
@@ -1251,7 +1289,7 @@ class cnUtil {
 		//size: ring size, default 2
 		//nrings: number of rings, default 64
 		//extensible borromean signatures
-		this.genBorromean = function (xv, pm, iv, size, nrings) {
+		function genBorromean(xv, pm, iv, size, nrings) {
 			if (xv.length !== nrings) {
 				throw "wrong xv length " + xv.length;
 			}
@@ -1324,8 +1362,8 @@ class cnUtil {
 			}
 			return bb;
 		};
-
-		this.verifyBorromean = function (bb, P1, P2) {
+		this.genBorromean = genBorromean;
+		function verifyBorromean(bb, P1, P2) {
 			let Lv1 = [];
 			let chash;
 			let LL;
@@ -1355,6 +1393,7 @@ class cnUtil {
 
 			return equalKeys;
 		};
+		this.verifyBorromean = verifyBorromean;
 
 		//proveRange
 		//proveRange gives C, and mask such that \sumCi = C
@@ -1363,7 +1402,7 @@ class cnUtil {
 		//	 thus this proves that "amount" is in [0, s^n] (we assume s to be 4) (2 for now with v2 txes)
 		//	 mask is a such that C = aG + bH, and b = amount
 		//commitMaskObj = {C: commit, mask: mask}
-		this.proveRange = function (
+		function proveRange(
 			commitMaskObj,
 			amount,
 			nrings,
@@ -1428,6 +1467,7 @@ class cnUtil {
 			commitMaskObj.mask = mask;
 			return sig;
 		};
+		this.proveRange = proveRange;
 
 		//proveRange and verRange
 		//proveRange gives C, and mask such that \sumCi = C
@@ -1436,7 +1476,7 @@ class cnUtil {
 		//   thus this proves that "amount" is in [0, 2^64]
 		//   mask is a such that C = aG + bH, and b = amount
 		//verRange verifies that \sum Ci = C and that each Ci is a commitment to 0 or 2^i
-		this.verRange = function (C, as, nrings = 64) {
+		function verRange(C, as, nrings = 64) {
 			try {
 				let CiH = []; // len 64
 				let asCi = []; // len 64
@@ -1464,6 +1504,7 @@ class cnUtil {
 				return false;
 			}
 		};
+		this.verRange = verRange;
 
 		function array_hash_to_scalar(array) {
 			var buf = "";
@@ -1482,7 +1523,7 @@ class cnUtil {
 		// we presently only support matrices of 2 rows (pubkey, commitment)
 		// this is a simplied MLSAG_Gen function to reflect that
 		// because we don't want to force same secret column for all inputs
-		this.MLSAG_Gen = function (message, pk, xx, kimg, index) {
+		function MLSAG_Gen(message, pk, xx, kimg, index) {
 			var cols = pk.length; //ring size
 			var i;
 
@@ -1578,8 +1619,9 @@ class cnUtil {
 			}
 			return rv;
 		};
+		this.MLSAG_Gen = MLSAG_Gen;
 
-		this.MLSAG_ver = function (message, pk, rv, kimg) {
+		function MLSAG_ver(message, pk, rv, kimg) {
 			// we assume that col, row, rectangular checks are already done correctly
 			// in MLSAG_gen
 			const cols = pk.length;
@@ -1623,6 +1665,7 @@ class cnUtil {
 
 			return Number(c) === 0;
 		};
+		this.MLSAG_ver = MLSAG_ver;
 
 		//Ring-ct MG sigs
 		//Prove:
@@ -1632,7 +1675,7 @@ class cnUtil {
 		//   this shows that sum inputs = sum outputs
 		//Ver:
 		//   verifies the above sig is created corretly
-		this.proveRctMG = function (message, pubs, inSk, kimg, mask, Cout, index) {
+		function proveRctMG(message, pubs, inSk, kimg, mask, Cout, index) {
 			var cols = pubs.length;
 			if (cols < 3) {
 				throw "cols must be > 2 (mixin)";
@@ -1649,6 +1692,7 @@ class cnUtil {
 			xx[1] = sc_sub(inSk.a, mask);
 			return this.MLSAG_Gen(message, PK, xx, kimg, index);
 		};
+		this.proveRctMG = proveRctMG;
 
 		//Ring-ct MG sigs
 		//Prove:
@@ -1658,7 +1702,7 @@ class cnUtil {
 		//   this shows that sum inputs = sum outputs
 		//Ver:
 		//   verifies the above sig is created corretly
-		this.verRctMG = function (mg, pubs, outPk, txnFeeKey, message, kimg) {
+		function verRctMG(mg, pubs, outPk, txnFeeKey, message, kimg) {
 			const cols = pubs.length;
 			if (cols < 1) {
 				throw Error("Empty pubs");
@@ -1693,9 +1737,10 @@ class cnUtil {
 			);
 			return this.MLSAG_ver(message, M, mg, kimg);
 		};
+		this.verRctMG = verRctMG;
 
 		// simple version, assuming only post Rct
-		this.verRctMGSimple = function (message, mg, pubs, C, kimg) {
+		function verRctMGSimple(message, mg, pubs, C, kimg) {
 			try {
 				const rows = 1;
 				const cols = pubs.len;
@@ -1712,12 +1757,14 @@ class cnUtil {
 				return false;
 			}
 		};
+		this.verRctMGSimple = verRctMGSimple;
 
-		this.verBulletProof = function () {
+		function verBulletProof() {
 			throw Error("verBulletProof is not implemented");
 		};
+		this.verBulletProof = verBulletProof;
 
-		this.get_pre_mlsag_hash = function (rv) {
+		function get_pre_mlsag_hash(rv) {
 			var hashes = "";
 			hashes += rv.message;
 			hashes += this.cn_fast_hash(this.serialize_rct_base(rv));
@@ -1725,6 +1772,7 @@ class cnUtil {
 			hashes += this.cn_fast_hash(buf);
 			return this.cn_fast_hash(hashes);
 		};
+		this.get_pre_mlsag_hash = get_pre_mlsag_hash;
 
 		function serialize_range_proofs(rv) {
 			var buf = "";
@@ -1753,7 +1801,7 @@ class cnUtil {
 		//indices is vector
 		//txnFee is string, with its endian not swapped (e.g d2s is not called before passing it in as an argument)
 		//to this function
-		this.genRct = function (
+		function genRct(
 			message,
 			inSk,
 			kimg,
@@ -1870,8 +1918,9 @@ class cnUtil {
 			}
 			return rv;
 		};
+		this.genRct = genRct;
 
-		this.verRct = function (rv, semantics, mixRing, kimg) {
+		function verRct(rv, semantics, mixRing, kimg) {
 			if (rv.type === 0x03) {
 				throw Error("Bulletproof validation not implemented");
 			}
@@ -1944,9 +1993,11 @@ class cnUtil {
 				return false;
 			}
 		};
+		this.verRct = verRct;
+
 		//ver RingCT simple
 		//assumes only post-rct style inputs (at least for max anonymity)
-		this.verRctSimple = function (rv, semantics, mixRing, kimgs) {
+		function verRctSimple(rv, semantics, mixRing, kimgs) {
 			try {
 				if (rv.type === 0x04) {
 					throw Error("Simple Bulletproof validation not implemented");
@@ -2072,11 +2123,12 @@ class cnUtil {
 				return false;
 			}
 		};
+		this.verRctSimple = verRctSimple;
 
 		//decodeRct: (c.f. http://eprint.iacr.org/2015/1098 section 5.1.1)
 		//   uses the attached ecdh info to find the amounts represented by each output commitment
 		//   must know the destination private key to find the correct amount, else will return a random number
-		this.decodeRct = function (rv, sk, i) {
+		function decodeRct(rv, sk, i) {
 			// where RCTTypeFull is 0x01 and  RCTTypeFullBulletproof is 0x03
 			if (rv.type !== 0x01 && rv.type !== 0x03) {
 				throw Error("verRct called on non-full rctSig");
@@ -2107,8 +2159,9 @@ class cnUtil {
 			}
 			return { amount, mask };
 		};
+		this.decodeRct = decodeRct;
 
-		this.decodeRctSimple = function (rv, sk, i) {
+		function decodeRctSimple(rv, sk, i) {
 			if (rv.type !== 0x02 && rv.type !== 0x04) {
 				throw Error("verRct called on full rctSig");
 			}
@@ -2138,19 +2191,22 @@ class cnUtil {
 			}
 			return { amount, mask };
 		};
+		this.decodeRctSimple = decodeRctSimple;
 
-		this.verBulletProof = function () {
+		function verBulletProof() {
 			throw Error("verBulletProof is not implemented");
 		};
+		this.verBulletProof = verBulletProof;
 		//end RCT functions
-		this.add_pub_key_to_extra = function (extra, pubkey) {
+		function add_pub_key_to_extra(extra, pubkey) {
 			if (pubkey.length !== 64) throw "Invalid pubkey length";
 			// Append pubkey tag and pubkey
 			extra += TX_EXTRA_TAGS.PUBKEY + pubkey;
 			return extra;
 		};
+		this.add_pub_key_to_extra = add_pub_key_to_extra;
 
-		this.add_nonce_to_extra = function (extra, nonce) {
+		function add_nonce_to_extra(extra, nonce) {
 			// Append extra nonce
 			if (nonce.length % 2 !== 0) {
 				throw "Invalid extra nonce";
@@ -2168,8 +2224,9 @@ class cnUtil {
 			extra += nonce;
 			return extra;
 		};
+		this.add_nonce_to_extra = add_nonce_to_extra;
 
-		this.get_payment_id_nonce = function (payment_id, pid_encrypt) {
+		function get_payment_id_nonce(payment_id, pid_encrypt) {
 			if (payment_id.length !== 64 && payment_id.length !== 16) {
 				throw "Invalid payment id";
 			}
@@ -2182,8 +2239,9 @@ class cnUtil {
 			res += payment_id;
 			return res;
 		};
+		this.get_payment_id_nonce = get_payment_id_nonce;
 
-		this.abs_to_rel_offsets = function (offsets) {
+		function abs_to_rel_offsets(offsets) {
 			if (offsets.length === 0) return offsets;
 			for (var i = offsets.length - 1; i >= 1; --i) {
 				offsets[i] = new JSBigInt(offsets[i])
@@ -2192,21 +2250,24 @@ class cnUtil {
 			}
 			return offsets;
 		};
+		this.abs_to_rel_offsets = abs_to_rel_offsets;
 
-		this.get_tx_prefix_hash = function (tx) {
+		function get_tx_prefix_hash(tx) {
 			var prefix = this.serialize_tx(tx, true);
 			return this.cn_fast_hash(prefix);
 		};
+		this.get_tx_prefix_hash = get_tx_prefix_hash;
 
-		this.get_tx_hash = function (tx) {
+		function get_tx_hash(tx) {
 			if (typeof tx === "string") {
 				return this.cn_fast_hash(tx);
 			} else {
 				return this.cn_fast_hash(this.serialize_tx(tx));
 			}
 		};
+		this.get_tx_hash = get_tx_hash;
 
-		this.serialize_tx = function (tx, headeronly) {
+		function serialize_tx(tx, headeronly) {
 			//tx: {
 			//	version: uint64,
 			//	unlock_time: uint64,
@@ -2269,8 +2330,9 @@ class cnUtil {
 			}
 			return buf;
 		};
+		this.serialize_tx = serialize_tx;
 
-		this.serialize_rct_tx_with_hash = function (tx) {
+		function serialize_rct_tx_with_hash(tx) {
 			var hashes = "";
 			var buf = "";
 			buf += this.serialize_tx(tx, true);
@@ -2295,8 +2357,9 @@ class cnUtil {
 				hash: hash,
 			};
 		};
+		this.serialize_rct_tx_with_hash = serialize_rct_tx_with_hash;
 
-		this.serialize_rct_base = function (rv) {
+		function serialize_rct_base(rv) {
 			var buf = "";
 			buf += this.encode_varint(rv.type);
 			buf += this.encode_varint(rv.txnFee);
@@ -2318,8 +2381,9 @@ class cnUtil {
 			}
 			return buf;
 		};
+		this.serialize_rct_base = serialize_rct_base;
 
-		this.generate_ring_signature = function (
+		function generate_ring_signature(
 			prefix_hash,
 			k_image,
 			keys,
@@ -2503,8 +2567,9 @@ class cnUtil {
 			CNCrypto._free(sec_m);
 			return sigs;
 		};
+		this.generate_ring_signature = generate_ring_signature;
 
-		this.construct_tx = function (
+		function construct_tx(
 			keys,
 			sources,
 			dsts,
@@ -2734,8 +2799,9 @@ class cnUtil {
 			console.log(tx);
 			return tx;
 		};
+		this.construct_tx = construct_tx;
 
-		this.create_transaction = function (
+		function create_transaction(
 			pub_keys,
 			sec_keys,
 			dsts,
@@ -2901,8 +2967,9 @@ class cnUtil {
 				nettype
 			);
 		};
+		this.create_transaction = create_transaction;
 
-		this.estimateRctSize = function (inputs, mixin, outputs) {
+		function estimateRctSize(inputs, mixin, outputs) {
 			var size = 0;
 			// tx prefix
 			// first few bytes
@@ -2934,6 +3001,7 @@ class cnUtil {
 			// console.log(logStr)
 			return size;
 		};
+		this.estimateRctSize = estimateRctSize;
 
 		function trimRight(str, char) {
 			while (str[str.length - 1] == char) str = str.slice(0, -1);
@@ -2949,15 +3017,16 @@ class cnUtil {
 
 		this.padLeft = padLeft;
 
-		this.printDsts = function (dsts) {
+		function printDsts(dsts) {
 			for (var i = 0; i < dsts.length; i++) {
 				console.log(
 					dsts[i].address + ": " + this.formatMoneyFull(dsts[i].amount)
 				);
 			}
 		};
+		this.printDsts = printDsts;
 
-		this.formatMoneyFull = function (units) {
+		function formatMoneyFull(units) {
 			units = units.toString();
 			var symbol = units[0] === "-" ? "-" : "";
 			if (symbol === "-") {
@@ -2979,24 +3048,28 @@ class cnUtil {
 				decimal
 			);
 		};
+		this.formatMoneyFull = formatMoneyFull;
 
-		this.formatMoneyFullSymbol = function (units) {
+		function formatMoneyFullSymbol(units) {
 			return this.formatMoneyFull(units) + " " + config.coinSymbol;
 		};
+		this.formatMoneyFullSymbol = formatMoneyFullSymbol;
 
-		this.formatMoney = function (units) {
+		function formatMoney(units) {
 			var f = trimRight(this.formatMoneyFull(units), "0");
 			if (f[f.length - 1] === ".") {
 				return f.slice(0, f.length - 1);
 			}
 			return f;
 		};
+		this.formatMoney = formatMoney;
 
-		this.formatMoneySymbol = function (units) {
+		function formatMoneySymbol(units) {
 			return this.formatMoney(units) + " " + config.coinSymbol;
 		};
+		this.formatMoneySymbol = formatMoneySymbol;
 
-		this.parseMoney = function (str) {
+		function parseMoney(str) {
 			if (!str) return JSBigInt.ZERO;
 			var negative = str[0] === "-";
 			if (negative) {
@@ -3029,8 +3102,9 @@ class cnUtil {
 					)
 				);
 		};
+		this.parseMoney = parseMoney;
 
-		this.decompose_amount_into_digits = function (amount) {
+		function decompose_amount_into_digits(amount) {
 			/*if (dust_threshold === undefined) {
 					dust_threshold = config.dustThreshold;
 			}*/
@@ -3057,8 +3131,9 @@ class cnUtil {
 			}
 			return ret;
 		};
+		this.decompose_amount_into_digits = decompose_amount_into_digits;
 
-		this.decompose_tx_destinations = function (dsts, rct) {
+		function decompose_tx_destinations(dsts, rct) {
 			var out = [];
 			if (rct) {
 				for (var i = 0; i < dsts.length; i++) {
@@ -3084,8 +3159,9 @@ class cnUtil {
 				return a["amount"] - b["amount"];
 			});
 		};
+		this.decompose_tx_destinations = decompose_tx_destinations;
 
-		this.is_tx_unlocked = function (unlock_time, blockchain_height) {
+		function is_tx_unlocked(unlock_time, blockchain_height) {
 			if (!config.maxBlockNumber) {
 				throw "Max block number is not set in config!";
 			}
@@ -3098,8 +3174,9 @@ class cnUtil {
 				return current_time >= unlock_time;
 			}
 		};
+		this.is_tx_unlocked = is_tx_unlocked;
 
-		this.tx_locked_reason = function (unlock_time, blockchain_height) {
+		function tx_locked_reason(unlock_time, blockchain_height) {
 			if (unlock_time < config.maxBlockNumber) {
 				// unlock time is block height
 				var numBlocks = unlock_time - blockchain_height;
@@ -3135,7 +3212,7 @@ class cnUtil {
 				);
 			}
 		};
-
+		this.tx_locked_reason = tx_locked_reason;
 		function assert(stmt, val) {
 			if (!stmt) {
 				throw "assert failed" + (val !== undefined ? ": " + val : "");
