@@ -946,7 +946,7 @@ class cnUtil {
 			CNCrypto._free(image_m);
 			return bintohex(res);
 		};
-		this.generate_key_image = generate_key_image_2;
+		this.generate_key_image_2 = generate_key_image_2;
 
 		function generate_key_image(
 			tx_pub,
