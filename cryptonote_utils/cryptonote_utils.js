@@ -1088,7 +1088,7 @@ class cnUtil {
 		this.ge_sub = ge_sub;
 
 		//adds two scalars together
-		this.sc_add = function (scalar1, scalar2) {
+		function sc_add(scalar1, scalar2) {
 			if (scalar1.length !== 64 || scalar2.length !== 64) {
 				throw "Invalid input length!";
 			}
