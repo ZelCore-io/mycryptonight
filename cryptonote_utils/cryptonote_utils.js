@@ -1142,7 +1142,7 @@ class cnUtil {
 		this.sc_sub = sc_sub;
 
 		//fun mul function
-		this.sc_mul = function (scalar1, scalar2) {
+		function sc_mul(scalar1, scalar2) {
 			if (scalar1.length !== 64 || scalar2.length !== 64) {
 				throw "Invalid input length!";
 			}
