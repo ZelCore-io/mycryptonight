@@ -32,9 +32,9 @@ const monero_config = require("./monero_config");
 const xcash_config = require("./xcash_config");
 const beldex_config = require("./beldex_config");
 const cryptonote_utils = require("../cryptonote_utils/cryptonote_utils").cnUtil;
-const monero_cryptonote_utils_instance = cryptonote_utils(monero_config);
-const xcash_cryptonote_utils_instance = cryptonote_utils(xcash_config);
-const beldex_cryptonote_utils_instance = cryptonote_utils(beldex_config);
+const monero_cryptonote_utils_instance = new cryptonote_utils(monero_config);
+const xcash_cryptonote_utils_instance = new cryptonote_utils(xcash_config);
+const beldex_cryptonote_utils_instance = new cryptonote_utils(beldex_config);
 
 function moneroUtils(coin) {
   let instance;
