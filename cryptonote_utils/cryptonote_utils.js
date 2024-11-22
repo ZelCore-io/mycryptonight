@@ -192,7 +192,7 @@ class cnUtil {
 			return C;
 		}
 
-		this.decode_rct_ecdh = function (ecdh, key) {
+		function decode_rct_ecdh(ecdh, key) {
 			var first = this.hash_to_scalar(key);
 			var second = this.hash_to_scalar(first);
 			return {
@@ -200,8 +200,9 @@ class cnUtil {
 				amount: this.sc_sub(ecdh.amount, second),
 			};
 		};
+		this.decode_rct_ecdh = decode_rct_ecdh;
 
-		this.encode_rct_ecdh = function (ecdh, key) {
+		function encode_rct_ecdh(ecdh, key) {
 			var first = this.hash_to_scalar(key);
 			var second = this.hash_to_scalar(first);
 			return {
@@ -209,6 +210,7 @@ class cnUtil {
 				amount: this.sc_add(ecdh.amount, second),
 			};
 		};
+		this.encode_rct_ecdh = encode_rct_ecdh;
 
 		//switch byte order for hex string
 		function swapEndian(hex) {
@@ -261,7 +263,7 @@ class cnUtil {
 		function s2d(scalar) {
 			return JSBigInt.parse(swapEndian(scalar), 16).toString();
 		}
-
+		this.s2d = s2d;
 		//convert integer string to 64bit "binary" little-endian string
 		function d2b(integer) {
 			if (typeof integer !== "string" && integer.toString().length > 15) {
@@ -524,6 +526,7 @@ class cnUtil {
 				pub: pub,
 			};
 		};
+		this.generate_keys = generate_keys;
 
 		function random_keypair() {
 			return this.generate_keys(this.rand_32());
